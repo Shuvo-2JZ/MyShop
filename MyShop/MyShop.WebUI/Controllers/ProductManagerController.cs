@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MyShop.Core.Models;
+using MyShop.Core.ViewModels;
 using MyShop.DataAccess.InMemory;
 
 
@@ -11,30 +12,38 @@ namespace MyShop.WebUI.Controllers
 {
     public class ProductManagerController : Controller
     {
-        // this is a model
-        ProductRepository context;
-
-        // the ProductRepository model works with the Product model
+        // repository is database access layer
+        ProductRepository context; // the ProductRepository model works with the Product model
+        ProductCategoryRepository productCategories; // the ProductCategoryRepository model works with the ProductCategory model
 
         public ProductManagerController()
         {
             context = new ProductRepository();
+            productCategories = new ProductCategoryRepository();
         }
 
-        // GET: ProductManager
         public ActionResult Index()
         {
-            // Product is the model from MyShop.core
-            // Collection is the method name
             List<Product> products = context.Collection().ToList();
+            // Product is the model from MyShop.core
+            // Collection is the IQueryable method from ProductRepository
+            // it returns a queryable, list of Product model
 
             return View(products);
         }
-
+        
         public ActionResult Create()
         {
-            Product product = new Product();
-            return View(product);
+            ProductManagerViewModel viewModel = new ProductManagerViewModel();
+            viewModel.Product = new Product();
+            viewModel.ProductCategories = productCategories.Collection();
+            // ViewModel property 'Product' is getting an instance of model 'Product'
+            // ViewModel property 'ProductCategories' is getting an instance of 'ProductCategoryRepository'
+            // Collection() is the IQueryable method from ProductCategoryRepository model
+            // it returns a queryable, list of ProductCategory model
+            // here the ProductCategories property is IEnumerable
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -64,7 +73,11 @@ namespace MyShop.WebUI.Controllers
             }
             else
             {
-                return View(product);
+                ProductManagerViewModel viewModel = new ProductManagerViewModel();
+                viewModel.Product = product;
+                viewModel.ProductCategories = productCategories.Collection();
+
+                return View(viewModel);
             }
         }
 

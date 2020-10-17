@@ -65,6 +65,7 @@ namespace MyShop.DataAccess.InMemory
         public IQueryable<Product> Collection()
         {
             return products.AsQueryable();
+            // returning a queryable, list of Product model. List<Product> products
         }
 
         public void Delete(string Id)
