@@ -13,13 +13,13 @@ namespace MyShop.WebUI.Controllers
     public class ProductManagerController : Controller
     {
         // repository is database access layer
-        ProductRepository context; // the ProductRepository model works with the Product model
-        ProductCategoryRepository productCategories; // the ProductCategoryRepository model works with the ProductCategory model
+        InMemoryRepository<Product> context; // the ProductRepository model works with the Product model
+        InMemoryRepository<ProductCategory> productCategories; // the ProductCategoryRepository model works with the ProductCategory model
 
         public ProductManagerController()
         {
-            context = new ProductRepository();
-            productCategories = new ProductCategoryRepository();
+            context = new InMemoryRepository<Product>();
+            productCategories = new InMemoryRepository<ProductCategory>();
         }
 
         public ActionResult Index()
