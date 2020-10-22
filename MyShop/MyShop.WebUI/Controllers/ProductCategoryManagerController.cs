@@ -10,7 +10,6 @@ namespace MyShop.WebUI.Controllers
 {
     public class ProductCategoryManagerController : Controller
     {
-        // this is a model
         InMemoryRepository<ProductCategory> context;
 
         // the ProductCategoryRepository model works with the Product model
