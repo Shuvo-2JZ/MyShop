@@ -1,4 +1,5 @@
-﻿using MyShop.Core.Models;
+﻿using MyShop.Core.Contracts;
+using MyShop.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,8 @@ namespace MyShop.DataAccess.InMemory
     // the T could be anything 
 
     // when ever we are passing an object to T, it must be of type BaseEntity
-    public class InMemoryRepository<T> where T : BaseEntity
+    // Generic classes can implement generic interfaces
+    public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
     {
         ObjectCache cache = MemoryCache.Default;
         List<T> items;
@@ -29,7 +31,7 @@ namespace MyShop.DataAccess.InMemory
             if (items == null)
             {
                 items = new List<T>();
-            } 
+            }
         }
 
         public void Commit()
@@ -46,7 +48,7 @@ namespace MyShop.DataAccess.InMemory
         {
             T tToUpdate = items.Find(i => i.Id == t.Id);
 
-            if(tToUpdate != null)
+            if (tToUpdate != null)
             {
                 tToUpdate = t;
             }
@@ -61,7 +63,7 @@ namespace MyShop.DataAccess.InMemory
         {
             T t = items.Find(i => i.Id == Id);
 
-            if(t != null)
+            if (t != null)
             {
                 return t;
             }
