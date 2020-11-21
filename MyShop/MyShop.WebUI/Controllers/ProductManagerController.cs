@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using MyShop.Core.Contracts;
 using MyShop.Core.Models;
 using MyShop.Core.ViewModels;
 using MyShop.DataAccess.InMemory;
@@ -14,32 +13,20 @@ namespace MyShop.WebUI.Controllers
     public class ProductManagerController : Controller
     {
         // repository is database access layer
-        IRepository<Product> context; 
-        IRepository<ProductCategory> productCategories;
+        InMemoryRepository<Product> context; // the ProductRepository model works with the Product model
+        InMemoryRepository<ProductCategory> productCategories; // the ProductCategoryRepository model works with the ProductCategory model
 
-        public ProductManagerController(IRepository<Product> productContext, IRepository<ProductCategory> productCategoryContext)
+        public ProductManagerController()
         {
-            // here productContext is not an ordinary type
-            // productContext, a class which implements IRepository<Product> interface
-
-            context = productContext;
-            productCategories = productCategoryContext;
-
-            // IRepository<Product> context = new InMemoryRepository<Product>();
-            // the context is an interface variable.
-            // we cannot access a method 
-            // that is not defined by the interface.
-
-            // InMemoryRepository<Product> context = new InMemoryRepository<Product>();
-            // now we can access a method in InMemoryRepository<Product> class
-            // that is not defined by the interface
+            context = new InMemoryRepository<Product>();
+            productCategories = new InMemoryRepository<ProductCategory>();
         }
 
         public ActionResult Index()
         {
             List<Product> products = context.Collection().ToList();
             // Product is the model from MyShop.core
-            // Collection is the IQueryable method from InMemoryRepository
+            // Collection is the IQueryable method from ProductRepository
             // it returns a queryable, list of Product model
 
             return View(products);
@@ -52,7 +39,7 @@ namespace MyShop.WebUI.Controllers
             viewModel.ProductCategories = productCategories.Collection();
             // ViewModel property 'Product' is getting an instance of model 'Product'
             // ViewModel property 'ProductCategories' is getting an instance of 'ProductCategoryRepository'
-            // Collection() is the IQueryable method from InMemoryRepository model
+            // Collection() is the IQueryable method from ProductCategoryRepository model
             // it returns a queryable, list of ProductCategory model
             // here the ProductCategories property is IEnumerable
 
