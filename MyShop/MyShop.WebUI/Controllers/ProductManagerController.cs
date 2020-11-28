@@ -4,75 +4,66 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MyShop.Core.Models;
-using MyShop.Core.ViewModels;
 using MyShop.DataAccess.InMemory;
-
+using MyShop.Core.ViewModels;
+using MyShop.Core.Contracts;
+using System.IO;
 
 namespace MyShop.WebUI.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ProductManagerController : Controller
     {
-        // repository is database access layer
-        InMemoryRepository<Product> context; // the ProductRepository model works with the Product model
-        InMemoryRepository<ProductCategory> productCategories; // the ProductCategoryRepository model works with the ProductCategory model
+        IRepository<Product> context;
+        IRepository<ProductCategory> productCategories;
 
-        public ProductManagerController()
-        {
-            context = new InMemoryRepository<Product>();
-            productCategories = new InMemoryRepository<ProductCategory>();
+        public ProductManagerController(IRepository<Product> productContext, IRepository<ProductCategory> productCategoryContext) {
+            context = productContext;
+            productCategories = productCategoryContext;
         }
-
+        // GET: ProductManager
         public ActionResult Index()
         {
             List<Product> products = context.Collection().ToList();
-            // Product is the model from MyShop.core
-            // Collection is the IQueryable method from ProductRepository
-            // it returns a queryable, list of Product model
-
             return View(products);
         }
-        
-        public ActionResult Create()
-        {
+
+        public ActionResult Create() {
             ProductManagerViewModel viewModel = new ProductManagerViewModel();
+
             viewModel.Product = new Product();
             viewModel.ProductCategories = productCategories.Collection();
-            // ViewModel property 'Product' is getting an instance of model 'Product'
-            // ViewModel property 'ProductCategories' is getting an instance of 'ProductCategoryRepository'
-            // Collection() is the IQueryable method from ProductCategoryRepository model
-            // it returns a queryable, list of ProductCategory model
-            // here the ProductCategories property is IEnumerable
-
             return View(viewModel);
         }
 
         [HttpPost]
-        public ActionResult Create(Product product)
-        {
-            if(!ModelState.IsValid)
+        public ActionResult Create(Product product, HttpPostedFileBase file) {
+            if (!ModelState.IsValid)
             {
                 return View(product);
             }
+            else {
 
-            else
-            {
+                if (file != null) {
+                    product.Image = product.Id + Path.GetExtension(file.FileName);
+                    file.SaveAs(Server.MapPath("//Content//ProductImages//") + product.Image);
+                }
+
                 context.Insert(product);
                 context.Commit();
 
                 return RedirectToAction("Index");
             }
+
         }
 
-        public ActionResult Edit(string Id)
-        {
+        public ActionResult Edit(string Id) {
             Product product = context.Find(Id);
-
-            if(product == null)
+            if (product == null)
             {
                 return HttpNotFound();
             }
-            else
-            {
+            else {
                 ProductManagerViewModel viewModel = new ProductManagerViewModel();
                 viewModel.Product = product;
                 viewModel.ProductCategories = productCategories.Collection();
@@ -82,8 +73,7 @@ namespace MyShop.WebUI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(Product product,string Id)
-        {
+        public ActionResult Edit(Product product, string Id, HttpPostedFileBase file) {
             Product productToEdit = context.Find(Id);
 
             if (productToEdit == null)
@@ -92,14 +82,17 @@ namespace MyShop.WebUI.Controllers
             }
             else
             {
-                if(! ModelState.IsValid)
-                {
+                if (!ModelState.IsValid) {
                     return View(product);
+                }
+
+                if (file != null) {
+                    productToEdit.Image = product.Id + Path.GetExtension(file.FileName);
+                    file.SaveAs(Server.MapPath("//Content//ProductImages//") + productToEdit.Image);
                 }
 
                 productToEdit.Category = product.Category;
                 productToEdit.Description = product.Description;
-                productToEdit.Image = product.Image;
                 productToEdit.Name = product.Name;
                 productToEdit.Price = product.Price;
 
@@ -125,8 +118,7 @@ namespace MyShop.WebUI.Controllers
 
         [HttpPost]
         [ActionName("Delete")]
-        public ActionResult ConfirmDelete(string Id)
-        {
+        public ActionResult ConfirmDelete(string Id) {
             Product productToDelete = context.Find(Id);
 
             if (productToDelete == null)

@@ -1,4 +1,5 @@
-﻿using MyShop.Core.Models;
+﻿using MyShop.Core.Contracts;
+using MyShop.Core.Models;
 using MyShop.DataAccess.InMemory;
 using System;
 using System.Collections.Generic;
@@ -8,25 +9,19 @@ using System.Web.Mvc;
 
 namespace MyShop.WebUI.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ProductCategoryManagerController : Controller
     {
-        InMemoryRepository<ProductCategory> context;
+        IRepository<ProductCategory> context;
 
-        // the ProductCategoryRepository model works with the Product model.
-
-        public ProductCategoryManagerController()
+        public ProductCategoryManagerController(IRepository<ProductCategory> context)
         {
-            context = new InMemoryRepository<ProductCategory>();
+            this.context = context;
         }
-
         // GET: ProductManager
         public ActionResult Index()
         {
-            // Product is the model from MyShop.core
-            // Collection is the IQueryable method from ProductCategoryRepository
-            // it returns a queryable, list of ProductCategory model
             List<ProductCategory> productCategories = context.Collection().ToList();
-
             return View(productCategories);
         }
 
@@ -43,7 +38,6 @@ namespace MyShop.WebUI.Controllers
             {
                 return View(productCategory);
             }
-
             else
             {
                 context.Insert(productCategory);
@@ -51,12 +45,12 @@ namespace MyShop.WebUI.Controllers
 
                 return RedirectToAction("Index");
             }
+
         }
 
         public ActionResult Edit(string Id)
         {
             ProductCategory productCategory = context.Find(Id);
-
             if (productCategory == null)
             {
                 return HttpNotFound();
@@ -68,7 +62,7 @@ namespace MyShop.WebUI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(ProductCategory productCategory, string Id)
+        public ActionResult Edit(ProductCategory product, string Id)
         {
             ProductCategory productCategoryToEdit = context.Find(Id);
 
@@ -80,10 +74,10 @@ namespace MyShop.WebUI.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    return View(productCategory);
+                    return View(product);
                 }
 
-                productCategoryToEdit.Category = productCategory.Category;  
+                productCategoryToEdit.Category = product.Category;
 
                 context.Commit();
 

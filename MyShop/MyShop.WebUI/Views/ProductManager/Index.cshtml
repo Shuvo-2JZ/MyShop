@@ -7,12 +7,11 @@
 <h2>Index</h2>
 
 <p>
-    @* another property we can add in the third parameter, in case we want to use a different controller   @Html.ActionLink("Create New", "Create","Car") *@
-    @* Create is the method name of the ProductManagerController *@
     @Html.ActionLink("Create New", "Create")
 </p>
 <table class="table">
     <tr>
+        <th></th>
         <th>
             @Html.DisplayNameFor(model => model.Name)
         </th>
@@ -25,14 +24,14 @@
         <th>
             @Html.DisplayNameFor(model => model.Category)
         </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Image)
-        </th>
         <th></th>
     </tr>
 
 @foreach (var item in Model) {
     <tr>
+        <td>
+            <img class="img-thumbnail" style="height:50px" src="~/Content/ProductImages/@item.Image"/>
+        </td>
         <td>
             @Html.DisplayFor(modelItem => item.Name)
         </td>
@@ -46,10 +45,7 @@
             @Html.DisplayFor(modelItem => item.Category)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Image)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id })
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.Id })
         </td>
     </tr>
